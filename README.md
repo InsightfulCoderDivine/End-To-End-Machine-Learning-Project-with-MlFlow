@@ -1,6 +1,6 @@
 ---
 
-# Car Price Prediction: End-to-End Machine Learning Project with MLflow and AWS
+# Loan Default Prediction: End-to-End Machine Learning Project with MLflow and AWS
 
 This repository showcases an end-to-end machine learning project focused on predicting Loan Default using a variety of classification models. The project includes data preprocessing, model training, hyperparameter tuning, deployment, and monitoring—implemented with **MLflow** and **AWS** to ensure reproducibility and scalability.
 
