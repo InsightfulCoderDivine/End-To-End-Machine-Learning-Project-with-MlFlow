@@ -23,15 +23,15 @@ class DataIngestionTrainingPipeline:
             raise e
         
         
-# Run the main method
-# - To test pipeline add it to `main.py`
-if __name__ == "__main__":
-    try:
-        logger.info(f">>>>> Stage: {STAGE_NAME} started <<<<<")
-        obj = DataIngestionTrainingPipeline()
-        obj.main()
-        logger.info(f">>>>> Stage: {STAGE_NAME} completed <<<<<\n\nx==========x")
+# # Run the main method
+# # - To test pipeline add it to `main.py`
+# if __name__ == "__main__":
+#     try:
+#         logger.info(f">>>>> Stage: {STAGE_NAME} started <<<<<")
+#         obj = DataIngestionTrainingPipeline()
+#         obj.main()
+#         logger.info(f">>>>> Stage: {STAGE_NAME} completed <<<<<\n\nx==========x")
         
-    except Exception as e:
-        logger.exception(e)        
-        raise e
+#     except Exception as e:
+#         logger.exception(e)        
+#         raise e
