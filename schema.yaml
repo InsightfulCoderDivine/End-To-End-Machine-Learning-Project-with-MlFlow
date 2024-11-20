@@ -1,2 +1,40 @@
-# file must not be empty
-key: val
+# How many columns your data is containing
+# Name and dtype
+
+COLUMNS:
+  ID: int64
+  year: int64
+  loan_limit: object
+  Gender: object
+  approv_in_adv: object
+  loan_type: object
+  loan_purpose: object
+  Credit_Worthiness: object
+  open_credit: object
+  business_or_commercial: object
+  loan_amount: int64
+  rate_of_interest: float64
+  Interest_rate_spread: float64
+  Upfront_charges: float64
+  term: float64
+  Neg_ammortization: object
+  interest_only: object
+  lump_sum_payment: object
+  property_value: float64
+  construction_type: object
+  occupancy_type: object
+  Secured_by: object
+  total_units: object
+  income: float64
+  credit_type: object
+  Credit_Score: int64
+  co-applicant_credit_type: object
+  age: object
+  submission_of_application: object
+  LTV: float64
+  Region: object
+  Security_Type: object
+  dtir1: float64
+
+TARGET_COLUMN:
+  Status: int64

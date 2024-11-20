@@ -5,3 +5,9 @@ data_ingestion:
   source_URL: https://github.com/InsightfulCoderDivine/End-To-End-Machine-Learning-Project-with-MlFlow/raw/refs/heads/main/loan%20default%20data.zip
   local_data_file: artifacts/data_ingestion/data.zip
   unzip_dir: artifacts/data_ingestion
+
+
+data_validation:
+  root_dir: artifacts/data_validation
+  unzip_data_dir: artifacts/data_ingestion/Loan_Default.csv
+  STATUS_FILE: artifacts/data_validation/status.txt

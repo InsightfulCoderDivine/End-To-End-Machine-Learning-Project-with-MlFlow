@@ -135,6 +135,71 @@ def get_size(path: Path) -> str:
     except Exception as e:
         raise f"Error getting size: {e}"
     
+
+@ensure_annotations
+def get_missing_columns(df: pd.DataFrame):
+    """
+    This function identifies columns in a DataFrame and
+    calculates the percentage of missing values for those columns.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+
+    Returns:
+        list: A list of numeric and categorical columns with missing values.
+        dict: A dictionary containing the percentage of missing values
+              for each column with missing data.
+    """
+    numeric_columns = df.select_dtypes(include=['int64', 'float64']).columns
+    category_columns = df.select_dtypes(include=['object']).columns
+    
+    numeric_columns_with_na = [col for col in numeric_columns if df[col].isna().sum() > 0]   
+    category_columns_with_na = [col for col in category_columns if df[col].isna().sum() > 0]   
+    
+    # Dictionary to store percentage of missing values for each column
+    numeric_columns_missing_data_info = {
+        column: f"{np.round(df[column].isnull().mean() * 100, 3)}% missing values"
+        for column in numeric_columns_with_na
+    }
+    
+    category_columns_missing_data_info = {
+        column: f"{np.round(df[column].isnull().mean() * 100, 3)}% missing values"
+        for column in category_columns_with_na
+    }
+    
+    return numeric_columns_with_na, category_columns_with_na, numeric_columns_missing_data_info, category_columns_missing_data_info
+    
+@ensure_annotations
+def get_outliers(df, column, lower_quantile=0.25, upper_quantile=0.75, iqr_multiplier=1.5) -> pd.Series:
+    """
+    Identify outliers in a DataFrame column using the IQR method with customizable quantiles.
+
+    Parameters:
+    - df: pandas DataFrame
+    - column: column name as a string
+    - lower_quantile: float, the lower quantile value (default is 0.25 for the 25th percentile)
+    - upper_quantile: float, the upper quantile value (default is 0.75 for the 75th percentile)
+    - iqr_multiplier: float, multiplier for the IQR to define outlier bounds (default is 1.5)
+
+    Returns:
+    - A boolean Series where True indicates an outlier.
+    """
+
+    # Calculate the specified quantiles
+    percentile_lower = np.quantile(df[column], lower_quantile)
+    percentile_upper = np.quantile(df[column], upper_quantile)
+
+    # Calculate the Interquartile Range (IQR)
+    IQR = percentile_upper - percentile_lower
+
+    # Calculate the lower and upper bounds for outliers
+    lower_bound = percentile_lower - (iqr_multiplier * IQR)
+    upper_bound = percentile_upper + (iqr_multiplier * IQR)
+
+    # Return the boolean Series indicating outliers
+    return (df[column] < lower_bound) | (df[column] > upper_bound)
+
+    
 @ensure_annotations
 def cross_tab_df(df: pd.DataFrame, cat_col: str, target_cat_col: str) -> pd.DataFrame:
     """Creates a crosstab of the specified categorical column against the target column,
@@ -293,43 +358,53 @@ def plot_scatter(df: pd.DataFrame, x_column: str, y_column: str, group_by: str):
         raise ValueError("Error in plotting scatter plot.") from e
       
 @ensure_annotations
-def plot_grouped_bar_chart(
-    df: pd.DataFrame, x_column: str, y_column: str, group_column: str, 
-    title: str, orientation: str='v'):
-    """Plots a grouped (side-by-side) bar chart for a categorical column grouped by another categorical column.
+def plot_grouped_bar_chart(data: pd.DataFrame, categorical_columns, hue_column: str, num_cols: int=2, ylabel: str='Count', palette: str="pastel", log_scale: bool=False, bar_width: float=0.8):
+    """
+    Plots a grouped (side-by-side) bar chart for a categorical column grouped by another categorical column.
 
-    Args:
-        df (pd.DataFrame): Data containing the values to plot.
-        x_column (str): Column name for the x-axis (categorical variable).
-        y_column (str): Column name for the y-axis (numerical variable).
-        group_column (str): Column name for grouping (categorical variable).
-        title (str): Title of the plot.
-        color (str): Color of the bars. Default is 'purple'.
-        orientation (str): Orientation of the bars ('v' for vertical, 'h' for horizontal). Default is 'v'.
+    Parameters:
+    data (DataFrame): The DataFrame containing the data.
+    x_column (str): The name of the primary categorical column to plot on the x-axis.
+    hue_column (str): The name of the categorical column to group by for side-by-side bars (default is 'Status_str').
+    xlabel (str): The label for the x-axis.
+    title (str): The title of the plot.
+    ylabel (str): The label for the y-axis (default is "Count").
+    figsize (tuple): The size of the figure (default is (8, 6)).
+    palette (str): The color palette for the plot (default is "pastel").
+    log_scale (bool): Whether to use a logarithmic scale for the y-axis (default is False).
+    bar_width (float): The width of the bars (default is 0.8, where 1.0 is full width with no spacing).
+
+    Returns:
+    None: Displays a grouped bar chart.
     """
     try:
-        fig = px.bar(
-            df, 
-            x=x_column if orientation == 'v' else y_column, 
-            y=y_column if orientation == 'v' else x_column, 
-            color=group_column, 
-            title=title,
-            barmode='group',
-            # text=[f"{score:.2f}" for score in df[x_column]],
-            color_discrete_sequence=px.colors.sequential.Sunset_r
-        )
-        fig.update_layout(
-            title=dict(font=dict(size=20, color='orange'), x=0.5),
-            xaxis_title=x_column,
-            yaxis_title=y_column,
-            template='plotly_white',
-            width=900,
-            height=500
-        )
-        fig.show()
+        rows = len(categorical_columns) // num_cols + (len(categorical_columns) % num_cols > 0)
+        
+        plt.figure(figsize=(10, 4 * rows))
+        plt.suptitle("Categorical Features Vs Categorical Column", fontsize=20, fontweight='bold', y=0.85)
+        
+        # Setting the style and palette
+        sns.set(style="whitegrid")
+        
+        for i, col in enumerate(categorical_columns):
+            plt.subplot(rows, num_cols, i + 1)
+            # Creating the grouped bar plot
+            sns.histplot(data=data, x=col, hue=hue_column, multiple="dodge", palette=palette, shrink=bar_width)
+            
+            # Adding a title and labels
+            plt.title(f'{col} Vs {hue_column}', fontsize=16)
+            plt.xlabel(col, fontsize=14)
+            plt.ylabel(ylabel, fontsize=14)
+        
+            if log_scale:
+                plt.yscale('log')
+        
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.9)
+        plt.show()
     except Exception as e:
-        raise ValueError("Error plotting grouped bar chart.") from e
-    
+        raise e
+       
 @ensure_annotations
 def plot_bar(df: pd.DataFrame, x_column: str, y_column: str ):
     """Plots a bar chart using Plotly, with values labeled on top of each bar.
@@ -374,7 +449,8 @@ def plot_univariate_distribution_categorical_features(df: pd.DataFrame, categori
         rows = len(categorical_features) // 2 + len(categorical_features) % 2
 
         # Create subplots
-        fig = make_subplots(rows=rows, cols=2, subplot_titles=[f'{col} Distribution' for col in categorical_features])
+        fig = make_subplots(rows=rows, cols=2, subplot_titles=[f'{col} Distribution' for col in categorical_features],
+                            vertical_spacing=0.03)
 
         # Loop through categorical features to add bar plots
         for i, col in enumerate(categorical_features):
@@ -384,8 +460,8 @@ def plot_univariate_distribution_categorical_features(df: pd.DataFrame, categori
             category_count = df[col].value_counts()
             fig.add_trace(go.Bar(x=category_count.index, y=category_count.values, name=col, text=category_count.values, textposition='auto'), row=row, col=col_idx)
 
-        # Adjust layoutheight=2000, width=1000, 
-        fig.update_layout(title_text="Categorical Feature Distributions", showlegend=False)
+        # Adjust layout
+        fig.update_layout(height=300 * rows, width=1000, title_text="Categorical Feature Distributions", showlegend=False)
 
         # Show the plot
         fig.show()
@@ -393,7 +469,167 @@ def plot_univariate_distribution_categorical_features(df: pd.DataFrame, categori
         raise ValueError("Error in plotting univariate distribution of dataframe.") from e
 
 @ensure_annotations
-def plot_bivariate_distribution_num_vs_cat(df: pd.DataFrame, numeric_features, cat_column_name: str, num_col: int=2, num_row=2):
+def plot_univariate_distribution_num_features(df: pd.DataFrame, numerical_features):
+    """Numerical features distribution. Using plotly violin.
+
+    Args:
+        df (pd.DataFrame): _description_
+        numerical_features (list): _description_
+
+    Raises:
+        f: _description_
+    """
+    try:
+        # Calculate the number of rows needed
+        rows = len(numerical_features)
+
+        # Create subplots
+        fig = make_subplots(rows=rows, cols=1, subplot_titles=[f'{col} Distribution' for col in numerical_features],
+                            vertical_spacing=0.03, horizontal_spacing=0.1)
+
+        # Loop through numerical features to add horizontal box plots
+        for i, col in enumerate(numerical_features):
+            row = i + 1
+            fig.add_trace(
+                go.Box(x=df[col], name=col, boxmean=True, orientation='h'),  # 'orientation=h' for horizontal
+                row=row,
+                col=1
+            )
+            
+        # Adjust layout
+        fig.update_layout(height=500 * rows, width=1000, title_text="Numerical Feature Distributions", showlegend=False)
+        fig.update_layout(template="plotly", grid=dict(rows=rows, columns=2))
+
+        # Show the plot
+        fig.show()
+
+    except Exception as e:
+        raise e
+
+@ensure_annotations
+def plot_numerical_histograms(df, numerical_features, bins=20):
+    """
+    Plots histograms for numerical features to show data distribution.
+    
+    Args:
+        df (pd.DataFrame): DataFrame containing the data.
+        numerical_features (list): List of numerical feature column names to plot.
+        bins (int): Number of bins for the histogram.
+    """
+    try:
+        # Calculate the number of rows needed
+        rows = len(numerical_features)
+
+        # Create subplots with one column
+        fig = make_subplots(
+            rows=rows, 
+            cols=1, 
+            subplot_titles=[f'{col} Histogram' for col in numerical_features],
+            vertical_spacing=0.03  # Adjust vertical spacing
+        )
+
+        # Loop through numerical features to add histograms
+        for i, col in enumerate(numerical_features):
+            row = i + 1
+
+            # Add histogram plot
+            fig.add_trace(
+                go.Histogram(
+                    x=df[col],
+                    nbinsx=bins,
+                    name=col,
+                    marker=dict(color='skyblue', line=dict(width=1, color='black'))  # Optional styling
+                ),
+                row=row,
+                col=1
+            )
+
+        # Adjust layout
+        fig.update_layout(
+            height=300 * rows,  # Adjust height dynamically based on the number of rows
+            width=1000,  # Set fixed width
+            title_text="Numerical Feature Histograms",
+            showlegend=False,
+            template="plotly",
+            margin=dict(t=50, l=30, r=30, b=30)  # Optional: Adjust margins
+        )
+
+        # Show the plot
+        fig.show()
+
+    except Exception as e:
+        raise e
+
+@ensure_annotations
+def univariate_numeric_imputation(df: pd.DataFrame, numeric_columns, method: str = 'mean'):
+    """
+    Impute missing values in numerical columns with specified method
+    and visualize the distribution before and after imputation.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing numerical columns with missing values.
+        numeric_columns (list): List of numerical columns to consider.
+        method (str): Imputation method ('mean', 'median', or 'interpolate').
+    """
+    try:
+        # Filter columns with missing values
+        num_cols_with_na = [col for col in numeric_columns if df[col].isna().sum() > 0]
+
+        # If no columns with missing values, exit
+        if not num_cols_with_na:
+            return "No numerical columns with missing values in DataFrame."
+
+        # Create subplots to display before and after distributions
+        rows = len(num_cols_with_na)
+        fig, axes = plt.subplots(rows, 1, figsize=(10, rows * 4))
+        fig.suptitle("Distributions Before and After Imputation", fontsize=20, fontweight='bold', y=1.02)
+
+        # Handle single-column case (axes becomes a single plot object, not an array)
+        if rows == 1:
+            axes = [axes]
+
+        for i, col in enumerate(num_cols_with_na):
+            ax = axes[i]
+            
+            # Plot original distribution
+            df[col].plot(kind="kde", ax=ax, label="Original", color='blue')
+            
+            if f"{col}_{method}_imputed" in df.columns:
+                return f"{col}_{method}_imputed already exists in DataFrame." 
+
+            # Imputation logic
+            if method == 'mean':
+                imputed_value = df[col].mean()
+                df[f"{col}_{method}_imputed"] = df[col].fillna(imputed_value)
+            elif method == 'median':
+                imputed_value = df[col].median()
+                df[f"{col}_{method}_imputed"] = df[col].fillna(imputed_value)
+            elif method == 'interpolate':
+                # Direct interpolation
+                df[f"{col}_{method}_imputed"] = df[col].interpolate(method='linear')
+            else:
+                raise ValueError(f"Invalid method '{method}'. Choose 'mean', 'median', or 'interpolate'.")
+
+            # Plot after-imputation distribution
+            df[f"{col}_{method}_imputed"].plot(kind="kde", ax=ax, label=f"After Imputation ({method})", color='orange')
+
+            # Add titles, labels, and legends
+            ax.set_title(f"{col} - Before and After Imputation ({method})", fontsize=14)
+            ax.set_xlabel(col)
+            ax.set_ylabel("Density")
+            ax.legend()
+            ax.grid(True, linestyle='--', alpha=0.7)
+
+        # Final layout adjustments
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.95)
+        plt.show()
+
+    except Exception as e:
+        print(f"Error: {e}")
+
+@ensure_annotations
+def plot_bivariate_distribution_num_vs_cat(df: pd.DataFrame, numeric_features, cat_column_name: str, num_col: int=2):
     """_summary_
 
     Args:
@@ -407,26 +643,53 @@ def plot_bivariate_distribution_num_vs_cat(df: pd.DataFrame, numeric_features, c
         ValueError: _description_
     """
     try:
-        # Can i have a main title for the graph and each plot a title? This is having
-        # a title but an empty graph is under it before the boxplot
-        plt.figure(figsize=(8, 10))
+        # Calculate the number of rows required
+        rows = len(numeric_features) // num_col + (len(numeric_features) % num_col > 0)
+        
+        # Dynamically adjust the figure height based on the number of rows
+        plt.figure(figsize=(8, 5 * rows))  # Adjust 5 to control height per row
         plt.suptitle("Numerical Features Vs Categorical Column", fontsize=20, fontweight='bold', y=1.02)
 
-        rows = len(numeric_features) // num_col + len(numeric_features) % num_col
-        
+
         for i, col in enumerate(numeric_features):
             plt.subplot(rows, num_col, i + 1)
             sns.boxplot(x=cat_column_name, y=col, data=df, medianprops=dict(color='red'), linewidth=2.5)
-            plt.title(f'{col} vs {cat_column_name}', fontsize=20)
-            plt.xlabel(cat_column_name, fontsize=14)
-            plt.ylabel(col, fontsize=14)
+            plt.title(f'{col} vs {cat_column_name}', fontsize=16)
+            plt.xlabel(cat_column_name, fontsize=12)
+            plt.ylabel(col, fontsize=12)
             plt.grid(True, linestyle='--', alpha=0.7)
 
         plt.tight_layout()
         plt.subplots_adjust(top=0.9)  # Adjust the top spacing to make room for suptitle
         plt.show()
     except Exception as e:
-        raise ValueError("Error in plotting bivariate num vs cat column.") from e
+        raise e
+    
+@ensure_annotations
+def before_after_distribution(df: pd.DataFrame, before_column: str, after_column: str):
+    """
+    Compare the distribution of a column before and after imputation using KDE plots.
+
+    Args:
+        df (pd.DataFrame): DataFrame containing the data.
+        before_column (str): Name of the column before imputation.
+        after_column (str): Name of the column after imputation.
+    """
+    try:
+        plt.figure(figsize=(10, 6))
+        # Plot original distribution
+        df[before_column].plot(kind="kde", label="Original", color='blue', linewidth=2)
+        # Plot after-imputation distribution
+        df[after_column].plot(kind="kde", label="After imputation", color='orange', linewidth=2)
+        
+        plt.title(f"Distribution of {before_column} vs {after_column}", fontsize=14)
+        plt.xlabel("Value", fontsize=12)
+        plt.ylabel("Density", fontsize=12)
+        plt.legend()
+        plt.grid(alpha=0.3)
+        plt.show()    
+    except Exception as e:
+        raise e
     
 @ensure_annotations
 def plot_corr_matrix_num_features(df: pd.DataFrame, numerical_features, method: str='pearson'):
