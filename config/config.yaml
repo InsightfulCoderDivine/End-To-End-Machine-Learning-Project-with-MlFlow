@@ -24,3 +24,8 @@ data_manipulation:
   manipulated_data_dir: artifacts/data_manipulation/Manipulated_Loan_Default.csv
   STATUS_FILE: artifacts/data_manipulation/status.txt
 
+outlier_detection:
+  root_dir: artifacts/outlier_detection
+  manipulated_data_dir: artifacts/data_manipulation/Manipulated_Loan_Default.csv
+  data_without_outliers_dir: artifacts/outlier_detection/Loan_Default.csv
+  STATUS_FILE: artifacts/outlier_detection/status.txt

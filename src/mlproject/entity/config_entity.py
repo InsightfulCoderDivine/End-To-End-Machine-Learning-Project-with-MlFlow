@@ -74,3 +74,24 @@ class DataManipulationConfig:
     cleaned_data_dir: str
     manipulated_data_dir: str
     STATUS_FILE: str
+
+
+@dataclass(frozen=True)
+class OutlierDetectionConfig:
+    """
+    Configuration class for outlier detection in a dataset.
+
+    This dataclass contains the file paths and directories needed for identifying and 
+    handling outliers during data preprocessing. The `frozen=True` parameter ensures 
+    immutability of the configuration object.
+
+    Attributes:
+        root_dir (Path): The root directory for storing all related files and outputs.
+        manipulated_data_dir (str): Path to the directory containing the data after initial manipulations.
+        data_without_outliers_dir (str): Path to the directory where data without outliers will be saved.
+        STATUS_FILE (str): Path to the file for logging the status of outlier detection operations.
+    """
+    root_dir: Path
+    manipulated_data_dir: str
+    data_without_outliers_dir: str
+    STATUS_FILE: str

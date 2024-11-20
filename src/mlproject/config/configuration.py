@@ -1,6 +1,6 @@
 from mlproject.constants import * 
 from mlproject.utils.common import read_yaml, create_directories
-from mlproject.entity.config_entity import DataIngestionConfig, DataManipulationConfig, DataValidationConfig, MissingValuesConfig
+from mlproject.entity.config_entity import DataIngestionConfig, DataManipulationConfig, DataValidationConfig, MissingValuesConfig, OutlierDetectionConfig
 
 
 class ConfigurationManager:
@@ -141,5 +141,20 @@ class ConfigurationManager:
                 STATUS_FILE=config.STATUS_FILE
             )
             return data_manipulation_config
+        except Exception as e:
+            raise e
+        
+    def get_outlier_detection_config(self) -> OutlierDetectionConfig:
+        try:
+            config = self.config.outlier_detection
+            create_directories([config.root_dir])
+            
+            outlier_detection_config = OutlierDetectionConfig(
+                root_dir=config.root_dir,
+                manipulated_data_dir=config.manipulated_data_dir,
+                data_without_outliers_dir=config.data_without_outliers_dir,
+                STATUS_FILE=config.STATUS_FILE
+            )
+            return outlier_detection_config
         except Exception as e:
             raise e
