@@ -1,6 +1,6 @@
 from mlproject.constants import * 
 from mlproject.utils.common import read_yaml, create_directories
-from mlproject.entity.config_entity import DataIngestionConfig, DataValidationConfig
+from mlproject.entity.config_entity import DataIngestionConfig, DataValidationConfig, MissingValuesConfig
 
 
 class ConfigurationManager:
@@ -85,3 +85,32 @@ class ConfigurationManager:
             all_schema=schema
         )
         return data_validation_config
+    
+    def get_missing_values_config(self) -> MissingValuesConfig:
+        """
+        Creates and returns a `MissingValuesConfig` object for handling missing values.
+
+        This method retrieves the configuration details specific to handling missing values from 
+        the main configuration file. It also ensures that the directories required for this step 
+        are created.
+
+        Returns:
+            MissingValuesConfig: An instance of `MissingValuesConfig` containing paths 
+            and other configuration details for handling missing values.
+
+        Raises:
+            Exception: If an error occurs while retrieving the missing values configuration.
+        """
+        try:
+            config = self.config.handle_missing_values
+            create_directories([config.root_dir])
+            
+            missing_values_config = MissingValuesConfig(
+                root_dir=config.root_dir,
+                unzip_data_dir=config.unzip_data_dir,
+                cleaned_data_dir=config.cleaned_data_dir,
+                STATUS_FILE=config.STATUS_FILE,
+            )
+            return missing_values_config
+        except Exception as e:
+            raise e

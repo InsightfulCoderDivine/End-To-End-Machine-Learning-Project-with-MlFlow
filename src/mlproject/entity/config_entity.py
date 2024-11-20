@@ -29,3 +29,25 @@ class DataValidationConfig:
     STATUS_FILE: str
     all_schema: dict
     
+
+@dataclass(frozen=True)
+class MissingValuesConfig:
+    """
+    Configuration class for handling missing values in a dataset.
+
+    This dataclass stores the configuration details required for identifying and managing 
+    missing values during data preprocessing. The `frozen=True` parameter ensures that 
+    instances of this class are immutable.
+
+    Attributes:
+        root_dir (Path): The root directory where all related files and data are stored.
+        unzip_data_dir (Path): Directory containing the unzipped raw data files.
+        cleaned_data_dir (str): Directory where the cleaned data files will be stored 
+                                after handling missing values.
+        STATUS_FILE (str): Path to the file where the status of missing value handling 
+                           will be logged.
+    """
+    root_dir: Path
+    unzip_data_dir: Path
+    cleaned_data_dir: str
+    STATUS_FILE: str
