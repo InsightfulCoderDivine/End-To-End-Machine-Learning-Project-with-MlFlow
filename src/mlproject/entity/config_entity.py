@@ -51,3 +51,26 @@ class MissingValuesConfig:
     unzip_data_dir: Path
     cleaned_data_dir: str
     STATUS_FILE: str
+    
+    
+@dataclass
+class DataManipulationConfig:
+    """
+    Configuration class for manipulating data in a dataset.
+
+    This dataclass stores the configuration details required for manipulating data
+    during data preprocessing. The `frozen=True` parameter ensures that 
+    instances of this class are immutable.
+
+    Attributes:
+        root_dir (Path): The root directory where all related files and data are stored.
+        cleaned_data_dir (str): Directory where the cleaned data files is stored 
+                                after handling missing values.
+        manipulated_data_dir (str): Directory where the manipulated data files will be stored
+        STATUS_FILE (str): Path to the file where the status of data manipulation 
+                           will be logged.
+    """
+    root_dir: Path
+    cleaned_data_dir: str
+    manipulated_data_dir: str
+    STATUS_FILE: str

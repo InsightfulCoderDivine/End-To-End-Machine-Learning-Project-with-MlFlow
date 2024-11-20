@@ -1,6 +1,6 @@
 from mlproject.constants import * 
 from mlproject.utils.common import read_yaml, create_directories
-from mlproject.entity.config_entity import DataIngestionConfig, DataValidationConfig, MissingValuesConfig
+from mlproject.entity.config_entity import DataIngestionConfig, DataManipulationConfig, DataValidationConfig, MissingValuesConfig
 
 
 class ConfigurationManager:
@@ -112,5 +112,34 @@ class ConfigurationManager:
                 STATUS_FILE=config.STATUS_FILE,
             )
             return missing_values_config
+        except Exception as e:
+            raise e
+        
+    def get_data_manipulation_config(self) -> DataManipulationConfig:
+        """
+        Creates and returns a `DataManipulationConfig` object for manipulating data.
+
+        This method retrieves the configuration details specific to manipulating data values from 
+        the main configuration file. It also ensures that the directories required for this step 
+        are created.
+
+        Returns:
+            DataManipulationConfig: An instance of `DataManipulationConfig` containing paths 
+            and other configuration details for manipulating data.
+
+        Raises:
+            Exception: If an error occurs while retrieving the manipulating data configuration.
+        """
+        try:
+            config = self.config.data_manipulation
+            create_directories([config.root_dir])
+            
+            data_manipulation_config = DataManipulationConfig(
+                root_dir=config.root_dir,
+                cleaned_data_dir=config.cleaned_data_dir,
+                manipulated_data_dir=config.manipulated_data_dir,
+                STATUS_FILE=config.STATUS_FILE
+            )
+            return data_manipulation_config
         except Exception as e:
             raise e

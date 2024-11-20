@@ -17,3 +17,10 @@ handle_missing_values:
   unzip_data_dir: artifacts/data_ingestion/Loan_Default.csv
   cleaned_data_dir: artifacts/handle_missing_values/Cleaned_Loan_Default.csv
   STATUS_FILE: artifacts/handle_missing_values/status.txt
+
+data_manipulation:
+  root_dir: artifacts/data_manipulation
+  cleaned_data_dir: artifacts/handle_missing_values/Cleaned_Loan_Default.csv
+  manipulated_data_dir: artifacts/data_manipulation/Manipulated_Loan_Default.csv
+  STATUS_FILE: artifacts/data_manipulation/status.txt
+
