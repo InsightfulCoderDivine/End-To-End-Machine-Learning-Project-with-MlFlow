@@ -5,6 +5,7 @@ from mlproject.pipeline.stage_03_handling_missing_values import HandlingMissingV
 from mlproject.pipeline.stage_04_data_manipulation import DataManipulationTrainingPipeline
 from mlproject.pipeline.stage_05_outlier_detection import OutlierDetectionTrainingPipeline
 from mlproject.pipeline.stage_06_data_split import DataSplitTrainingPipeline
+from mlproject.pipeline.stage_07_data_transformation import DataTransformationPipeline
 
 
 STAGE_NAME = "Data Ingestion Stage"
@@ -68,6 +69,16 @@ try:
     logger.info(f">>>>> Stage: {STAGE_NAME} started. <<<<<")
     data_spliter = DataSplitTrainingPipeline()
     data_spliter.main()
+    logger.info(f">>>>> Stage: {STAGE_NAME} completed. <<<<<\n\nx==========x")
+except Exception as e:
+    raise e
+
+
+STAGE_NAME ="Data Transformation Stage"
+try:
+    logger.info(f">>>>> Stage: {STAGE_NAME} started. <<<<<")
+    data_transformer = DataTransformationPipeline()
+    data_transformer.main()
     logger.info(f">>>>> Stage: {STAGE_NAME} completed. <<<<<\n\nx==========x")
 except Exception as e:
     raise e

@@ -37,3 +37,10 @@ data_split:
   X_test_data_path: artifacts/data_split/X_test.csv
   y_train_data_path: artifacts/data_split/y_train.csv
   y_test_data_path: artifacts/data_split/y_test.csv
+
+data_transformation:
+  root_dir: artifacts/data_transformation
+  X_train_data_path: artifacts/data_split/X_train.csv
+  X_test_data_path: artifacts/data_split/X_test.csv
+  y_train_data_path: artifacts/data_split/y_train.csv
+  y_test_data_path: artifacts/data_split/y_test.csv

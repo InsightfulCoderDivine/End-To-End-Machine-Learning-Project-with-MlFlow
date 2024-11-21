@@ -103,4 +103,14 @@ class DataSplitConfig:
     X_train_data_path: str
     X_test_data_path: str
     y_train_data_path: str
-    y_test_data_path: str    
+    y_test_data_path: str
+    
+    
+@dataclass(frozen=True)
+class DataTransformationConfig:
+    root_dir: Path
+    X_train_data_path: str
+    X_test_data_path: str
+    y_train_data_path: str
+    y_test_data_path: str
+        

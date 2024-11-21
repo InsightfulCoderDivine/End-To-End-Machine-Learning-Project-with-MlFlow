@@ -1,6 +1,6 @@
 from mlproject.constants import * 
 from mlproject.utils.common import read_yaml, create_directories
-from mlproject.entity.config_entity import DataIngestionConfig, DataManipulationConfig, DataSplitConfig, DataValidationConfig, MissingValuesConfig, OutlierDetectionConfig
+from mlproject.entity.config_entity import DataIngestionConfig, DataManipulationConfig, DataSplitConfig, DataTransformationConfig, DataValidationConfig, MissingValuesConfig, OutlierDetectionConfig
 
 
 class ConfigurationManager:
@@ -173,5 +173,23 @@ class ConfigurationManager:
                 y_test_data_path=config.y_test_data_path
             )
             return data_split_config
+        except Exception as e:
+            raise e
+        
+    def get_data_transformation_config(self) -> DataTransformationConfig:
+        try:
+            config = self.config.data_transformation
+            # Not necessary because we are not saving any file 
+            # All transformed data would be saved back to `data_split` directory
+            # create_directories([config.root_dir])
+            
+            data_transformation_config = DataTransformationConfig(
+                root_dir=config.root_dir,
+                X_train_data_path=config.X_train_data_path,
+                X_test_data_path=config.X_test_data_path,
+                y_train_data_path=config.y_train_data_path,
+                y_test_data_path=config.y_test_data_path
+            )
+            return data_transformation_config
         except Exception as e:
             raise e
