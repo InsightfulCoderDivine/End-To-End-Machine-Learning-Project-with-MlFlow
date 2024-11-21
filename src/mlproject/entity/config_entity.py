@@ -95,3 +95,12 @@ class OutlierDetectionConfig:
     manipulated_data_dir: str
     data_without_outliers_dir: str
     STATUS_FILE: str
+    
+@dataclass(frozen=True)
+class DataSplitConfig:
+    root_dir: Path
+    data_path: str
+    X_train_data_path: str
+    X_test_data_path: str
+    y_train_data_path: str
+    y_test_data_path: str    

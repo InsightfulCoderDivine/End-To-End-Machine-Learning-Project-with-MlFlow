@@ -1,6 +1,6 @@
 from mlproject.constants import * 
 from mlproject.utils.common import read_yaml, create_directories
-from mlproject.entity.config_entity import DataIngestionConfig, DataManipulationConfig, DataValidationConfig, MissingValuesConfig, OutlierDetectionConfig
+from mlproject.entity.config_entity import DataIngestionConfig, DataManipulationConfig, DataSplitConfig, DataValidationConfig, MissingValuesConfig, OutlierDetectionConfig
 
 
 class ConfigurationManager:
@@ -156,5 +156,22 @@ class ConfigurationManager:
                 STATUS_FILE=config.STATUS_FILE
             )
             return outlier_detection_config
+        except Exception as e:
+            raise e
+        
+    def get_data_split_config(self) -> DataSplitConfig:
+        try:
+            config = self.config.data_split
+            create_directories([config.root_dir])
+            
+            data_split_config = DataSplitConfig(
+                root_dir=config.root_dir,
+                data_path=config.data_path,
+                X_train_data_path=config.X_train_data_path,
+                X_test_data_path=config.X_test_data_path,
+                y_train_data_path=config.y_train_data_path,
+                y_test_data_path=config.y_test_data_path
+            )
+            return data_split_config
         except Exception as e:
             raise e

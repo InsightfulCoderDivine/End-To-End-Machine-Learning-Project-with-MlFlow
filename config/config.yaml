@@ -29,3 +29,11 @@ outlier_detection:
   manipulated_data_dir: artifacts/data_manipulation/Manipulated_Loan_Default.csv
   data_without_outliers_dir: artifacts/outlier_detection/Loan_Default.csv
   STATUS_FILE: artifacts/outlier_detection/status.txt
+
+data_split:
+  root_dir: artifacts/data_split
+  data_path: artifacts/outlier_detection/Loan_Default.csv
+  X_train_data_path: artifacts/data_split/X_train.csv
+  X_test_data_path: artifacts/data_split/X_test.csv
+  y_train_data_path: artifacts/data_split/y_train.csv
+  y_test_data_path: artifacts/data_split/y_test.csv
