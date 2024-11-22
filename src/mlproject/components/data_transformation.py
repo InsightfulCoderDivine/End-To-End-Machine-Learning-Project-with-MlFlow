@@ -461,4 +461,80 @@ class HandlingImbalanceDataset:
             return X_resampled, y_resampled
 
         except Exception as e:
-            raise e                                        
+            raise e     
+        
+        
+class FeatureSelection:
+    """
+    Performs feature selection by dropping irrelevant or less significant columns from the dataset.
+
+    The `FeatureSelection` class processes the resampled training data and test data, removing 
+    specific columns that are deemed unnecessary for model training. The updated datasets are 
+    saved to their respective file paths defined in the `DataTransformationConfig`.
+
+    Attributes:
+        config (DataTransformationConfig): Configuration object containing paths for input 
+        and output data files.
+
+    Methods:
+        select_features:
+            Drops specified columns from the training and test datasets, saves the updated 
+            datasets to the configured file paths, and returns the modified datasets.
+
+    Raises:
+        Exception: Propagates any exceptions that occur during the feature selection process.
+    """
+    
+    def __init__(self, config: DataTransformationConfig):
+        """
+        Initializes the FeatureSelection class.
+
+        Args:
+            config (DataTransformationConfig): Configuration object containing paths for 
+            training and test datasets.
+        """
+        self.config = config
+        
+    def select_features(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """
+        Drops unnecessary columns from the resampled training data and test data.
+
+        Reads the training and test datasets, removes a predefined list of columns, and 
+        saves the resulting datasets back to their configured file paths.
+
+        Returns:
+            Tuple[pd.DataFrame, pd.DataFrame]: Updated training and test datasets after 
+            feature selection.
+
+        Steps:
+            1. Reads the resampled training and test datasets from their respective paths.
+            2. Removes columns listed in `columns_to_drop03`.
+            3. Saves the updated datasets to the configured file paths.
+            4. Returns the modified datasets.
+
+        Raises:
+            Exception: If any errors occur during the feature selection process, they are 
+            raised and propagated.
+        """
+        try:
+            X_resampled = pd.read_csv(self.config.X_train_data_path).reset_index(drop=True)
+            X_test = pd.read_csv(self.config.X_test_data_path).reset_index(drop=True)
+
+            columns_to_drop03 = [
+                'ID', 'year', 'term', 'loan_limit_cf', 'loan_limit_ncf','Interest_rate_spread',
+                'property_value','submission_of_application_not_inst',
+                'submission_of_application_to_inst', 'construction_type_mh',
+                'construction_type_sb', 'open_credit_nopc', 'open_credit_opc'
+                ]
+
+            X_resampled.drop(columns_to_drop03, axis=1, inplace=True)
+            X_test.drop(columns_to_drop03, axis=1, inplace=True)
+            
+            # Save transformed data to 'data_transformation' dir
+            X_resampled.to_csv(self.config.X_train_data_path, index = False)
+            X_test.to_csv(self.config.X_test_data_path, index = False)
+            
+            return X_resampled, X_test
+        except Exception as e:
+            raise e
+                                                   

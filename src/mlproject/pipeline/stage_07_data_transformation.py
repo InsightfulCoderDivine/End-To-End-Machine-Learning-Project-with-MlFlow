@@ -64,8 +64,9 @@ class DataTransformationPipeline:
             X_train, X_test = OneHotEncoding(data_transformation_config).apply_one_hot_encoding()
             X_train, X_test = FrequencyEncoding(data_transformation_config).apply_frequency_encoding()
             X_train_scaled_df, X_test_scaled_df = DataScaling(data_transformation_config).apply_standard_scaler()
-            X_train_scaled_df, y_train = HandlingImbalanceDataset(data_transformation_config).apply_ADASYN(X_train_scaled_df)
-                
+            X_resampled, y_train = HandlingImbalanceDataset(data_transformation_config).apply_ADASYN(X_train_scaled_df)
+            X_resampled, X_test = FeatureSelection(data_transformation_config).select_features()
+    
         except Exception as e:
             raise e
         
