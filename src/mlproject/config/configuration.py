@@ -177,11 +177,22 @@ class ConfigurationManager:
             raise e
         
     def get_data_transformation_config(self) -> DataTransformationConfig:
+        """
+        Retrieves the configuration for the data transformation stage.
+
+        - Reads the `data_transformation` section of the main configuration file.
+        - Ensures that the root directory for data transformation outputs exists.
+        - Creates and returns a `DataTransformationConfig` object with paths for training and testing datasets.
+
+        Returns:
+            DataTransformationConfig: An object containing paths and directories needed for data transformation.
+
+        Raises:
+            Exception: If any error occurs during configuration retrieval or directory creation.
+        """
         try:
             config = self.config.data_transformation
-            # Not necessary because we are not saving any file 
-            # All transformed data would be saved back to `data_split` directory
-            # create_directories([config.root_dir])
+            create_directories([config.root_dir])
             
             data_transformation_config = DataTransformationConfig(
                 root_dir=config.root_dir,

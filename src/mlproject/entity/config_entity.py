@@ -108,9 +108,23 @@ class DataSplitConfig:
     
 @dataclass(frozen=True)
 class DataTransformationConfig:
+    """
+    Configuration class for data transformation in a machine learning pipeline.
+
+    This dataclass holds paths for training and testing datasets, both features (X) 
+    and labels (y), required during the data transformation process. The `frozen=True` 
+    parameter ensures immutability of the configuration object.
+
+    Attributes:
+        root_dir (Path): The root directory for storing all data transformation outputs.
+        X_train_data_path (str): Path to the file containing the training feature data.
+        X_test_data_path (str): Path to the file containing the testing feature data.
+        y_train_data_path (str): Path to the file containing the training labels.
+        y_test_data_path (str): Path to the file containing the testing labels.
+    """
     root_dir: Path
     X_train_data_path: str
     X_test_data_path: str
     y_train_data_path: str
     y_test_data_path: str
-        
+    
